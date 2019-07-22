@@ -1,26 +1,77 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from "react";
+import { Route } from "react-router-dom";
+import BookList from "./BookList";
+import SearchBooks from "./ShowSearchPage";
+import * as BooksApi from "./BooksAPI";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class BooksApp extends Component {
+  state = {
+    books: []
+  };
+
+  componentDidMount() {
+    BooksApi.getAll().then(books => {
+      this.setState({ books });
+    });
+  }
+
+  updateShelf = (book, shelf) => {
+    BooksApi.update(book, shelf);
+    // .then(data => data.book)
+    //.then(res => console.log(res));
+    // .then(() => {
+    //   this.setState(state => ({
+    //     books: state.books
+    //   }));
+    // });
+  };
+
+  // componentDidUpdate() {
+  //   BooksApi.getAll().then(books => {
+  //     this.setState({ books });
+  //   });
+  // }
+
+  // componentDidUpdate(prevProps) {
+  //   if (prevProps === this.props.books) {
+  //     this.setState({ books: prevProps });
+  //   }
+  // }
+
+  // shouldComponentUpdate() {
+  //   BooksApi.getAll().then(books => {
+  //     this.setState({ books });
+  //   });
+  //   return true;
+  // }
+
+  render() {
+    return (
+      <div>
+        <Route
+          exact
+          path="/"
+          render={() => (
+            <BookList
+              books={this.state.books}
+              onUpdateBook={(book, shelf) => {
+                this.updateShelf(book, shelf);
+              }}
+            />
+          )}
+        />
+        <Route
+          path="/search"
+          render={({ history }) => (
+            <SearchBooks
+              books={this.state.books}
+              onSearchBook={() => history.push("/")}
+            />
+          )}
+        />
+      </div>
+    );
+  }
 }
 
-export default App;
+export default BooksApp;
